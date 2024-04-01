@@ -1,21 +1,19 @@
-import Dexie, { Table } from 'dexie';
+import { GeneralItem } from "@/@type/DlsiteItem.types";
+import Dexie, { Table } from "dexie";
 
-export interface DlsiteWorkDb {
-  id: string;
-  raw: any;
+export class IndexedDBDexie extends Dexie {
+    items!: Table<GeneralItem>
+
+    constructor() {
+        super('main')
+        this.version(1).stores({
+            items: '&workno'
+        })
+    }
 }
 
-export class MySubClassedDexie extends Dexie {
-  // 'friends' is added by dexie when declaring the stores()
-  // We just tell the typing system this is the case
-  friends!: Table<DlsiteWorkDb>;
-
-  constructor() {
-    super('dlplaydb');
-    this.version(1).stores({
-      friends: '++id' // Primary key and indexed props
-    });
-  }
+export const find = async (limit: number): Promise<GeneralItem[]> => {
+    return await db.items.limit(limit).toArray()
 }
 
-export const db = new MySubClassedDexie();
+export const db = new IndexedDBDexie();

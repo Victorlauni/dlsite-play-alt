@@ -1,6 +1,17 @@
 import { Stack, Button } from '@mantine/core';
 import ItemDisplayCard from '../ItemDisplayCard/ItemDisplayCard';
-export default function ItemContainer(prop: {data: any[]}) {
+import { useCallback, useEffect, useState } from 'react';
+import { db, find } from '@/common/db';
+import { GeneralItem } from '@/@type/DlsiteItem.types';
+export default function ItemContainer() {
+  const [displayItems, setDisplayItems] = useState<GeneralItem[]>([])
+
+  useEffect(() => {
+    (async () => {
+      setDisplayItems(await find(10));
+    })();
+  }, [])
+
   return (
     <Stack
       h={300}
@@ -8,7 +19,9 @@ export default function ItemContainer(prop: {data: any[]}) {
       justify="flex-start"
     >
       {
-        prop.data.map(i => <ItemDisplayCard work={i}/>)
+        displayItems.map(item => {
+          return <ItemDisplayCard item={item} key={item.workno}/>
+        })
       }
       <Button variant="default">1</Button>
       <Button variant="default">2</Button>

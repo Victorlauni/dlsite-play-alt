@@ -5,7 +5,7 @@ import { useState } from "react";
 import { notifications } from "@mantine/notifications";
 import { useDisclosure } from "@mantine/hooks";
 
-export default function LoginModal() {
+export default function LoginModal(props: {setIsAuth: (isAuth: boolean) => void}) {
     const [opened, {open, close}] = useDisclosure(true)
     const [accountInfo, setAccountInfo] = useState<{email: string, password: string}>({email: "", password: ""});
     const [isLoading, setIsLoading] = useState(false)
@@ -29,7 +29,8 @@ export default function LoginModal() {
             setIsLoading(false)
             return
         }
-
+        
+        props.setIsAuth(true)
         localStorage.setItem("auth", "true")
         close()
     }

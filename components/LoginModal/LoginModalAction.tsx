@@ -89,6 +89,7 @@ export async function update(): Promise<any> {
             const itemCount = await fetch("https://play.dlsite.com/api/product_count?last=0", {
                 credentials: 'include', cache: 'no-store', headers: constructHeaderWithCookies()
             }).then(res => res.json()).then(json => json.user)
+            if (isNaN(itemCount)) throw new Error("Cred expired.")
             console.log("Total Items: " + itemCount)
             let dataFetch = []
             for (let i = 0, page = 1; i < itemCount; i+=50, page++) {
@@ -104,7 +105,9 @@ export async function update(): Promise<any> {
                 data = data.concat((await val.json()).works)
             }
         })
-        .catch(err => console.error(err))
+        .catch(err => {
+            throw err
+        })
 
     return Promise.resolve(data)
 }
