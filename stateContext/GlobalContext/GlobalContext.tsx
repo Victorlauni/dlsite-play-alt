@@ -1,4 +1,4 @@
 import { GlobalState } from "@/@type/GlobalState.types";
-import { Context, createContext } from "react";
+import { createContext } from "react";
 
-export default createContext<GlobalState>({auth: false});
+export default createContext<GlobalState>({cats: [], type: ""});

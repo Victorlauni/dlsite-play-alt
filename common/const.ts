@@ -3,10 +3,10 @@ export const getCatUrl = (catNo: number) => {
 }
 
 export const getWorkUrl = (workno: string) => {
-    return `https://www.dlsite.com/maniax/work/=/product_id/${workno}.html`
+    return `https://play.dlsite.com/#/work/${workno}`
 }
 
-export const WORK_CATEGORY = {
+export const WORK_CATEGORY: Record<string, Record<string, Record<number, string>>> = {
     "R18": {
         "appeal": {
             509: "3D作品",
@@ -303,4 +303,13 @@ export const WORK_CATEGORY = {
             167: "ロングヘア"
         }
     }
+}
+
+export const WORK_CATEGORY_NAME: Record<number, string> = {
+    ...WORK_CATEGORY.R18.appeal,
+    ...WORK_CATEGORY.R18.system,
+    ...WORK_CATEGORY.R18.play,
+    ...WORK_CATEGORY.R18.item,
+    ...WORK_CATEGORY.R18.character,
+    ...WORK_CATEGORY.R18.appearence
 }

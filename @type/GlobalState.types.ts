@@ -1,3 +1,4 @@
 export interface GlobalState {
-    auth: boolean
+    cats: number[],
+    type: string
 }

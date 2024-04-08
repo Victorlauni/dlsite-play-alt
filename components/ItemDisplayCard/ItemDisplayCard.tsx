@@ -1,17 +1,33 @@
 import { GeneralItem } from '@/@type/DlsiteItem.types'
-import { getWorkUrl } from '@/common/const'
-import { AspectRatio, Group, Image, Stack, Text } from '@mantine/core'
-import React from 'react'
+import { WORK_CATEGORY, WORK_CATEGORY_NAME, getWorkUrl } from '@/common/const'
+import { db } from '@/common/db'
+import { AspectRatio, Badge, Group, Image, Stack, Text } from '@mantine/core'
+import React, { useEffect, useState } from 'react'
 
 export default function ItemDisplayCard(props: {item: GeneralItem}) {
+  const [cats, setCats] = useState<string[]>([])
+  useEffect(() => {
+    (async () => {
+      await db.workCats.get(props.item.workno).then(cat => setCats(cat?.cat.map(catNo => WORK_CATEGORY_NAME[catNo]).filter(cat => cat != undefined) ?? []))
+    })()
+  }, [])
   return (
-    <Group wrap='nowrap' onClick={() => {window.open(getWorkUrl(props.item.workno), "_black")}} style={{border: "1px solid #555"}}>
-      <AspectRatio ratio={1} w="20%">
+    <Group 
+      wrap='nowrap' 
+      onClick={() => {window.open(getWorkUrl(props.item.workno), "_black")}} 
+      style={{border: "1px solid #555"}}
+    >
+      <AspectRatio ratio={4/3} w="20%">
         <Image src={props.item.work_files.main} h="100%" radius={"md"} loading='lazy'/>
       </AspectRatio>
       <Stack w="80%">
-        <Text>{props.item.name.ja_JP}</Text>
-        <Text>{props.item.maker.name.ja_JP}</Text>
+        <Text fw={700}>{props.item.name.ja_JP}</Text>
+        <Text c='dimmed'>{props.item.maker.name.ja_JP}</Text>
+        <Group>
+          {
+            cats.map(cat => <Badge variant='outline'>{cat}</Badge>)
+          }
+        </Group>
       </Stack>
     </Group>
   )
