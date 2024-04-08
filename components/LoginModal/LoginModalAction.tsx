@@ -1,7 +1,7 @@
 'use server'
 
-import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
 import { cookies } from "next/headers"
+import { JSDOM } from "jsdom"
 
 const constructHeaderWithCookies = () => {
     let cookieArr = [];
@@ -110,4 +110,24 @@ export async function update(): Promise<any> {
         })
 
     return Promise.resolve(data)
+}
+
+export async function fetchCat(workno: string): Promise<number[]> {
+    let catList: number[] = []
+    let url = `https://www.dlsite.com/maniax/work/=/product_id/${workno}.html`
+    await fetch(url).then(res => res.text()).then(res => {
+        const doc = new JSDOM(res)
+        const childList = doc.window.document.getElementsByClassName("main_genre").item(0)?.children
+        for (let i = 0; i < (childList?.length ?? 0); i++) {
+            const child = childList?.item(i)!!
+            const href = child.getAttribute("href") ?? ""
+            //const catName = child.textContent
+            //console.log(`${catName} ${href}`)
+            const hrefRX = /.+genre\/([0-9]*)\/from.+/g
+            const catNo = hrefRX.exec(href)
+            if (catNo != null && catNo.length > 1) catList.push(parseInt(catNo[1]))
+        }
+
+    })
+    return Promise.resolve(catList)
 }
