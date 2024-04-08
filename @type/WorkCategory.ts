@@ -1,4 +1,4 @@
 export interface WorkCategory {
-    workno: string,
-    cat: number[]
+  workno: string;
+  cat: number[];
 }

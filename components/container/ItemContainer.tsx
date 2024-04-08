@@ -6,47 +6,57 @@ import { GeneralItem } from '@/@type/DlsiteItem.types';
 import GlobalContext from '@/stateContext/GlobalContext/GlobalContext';
 import InfiniteScroll from 'react-infinite-scroll-component';
 export default function ItemContainer() {
-  const [currentPage, setCurrentPage] = useState<number>(0)
-  const [displayItems, setDisplayItems] = useState<GeneralItem[]>([])
-  const [haveMore, setHaveMore] = useState(true)
-  const globalState = useContext(GlobalContext)
-  const PAGE_SIZE = 10
+  const [currentPage, setCurrentPage] = useState<number>(0);
+  const [displayItems, setDisplayItems] = useState<GeneralItem[]>([]);
+  const [haveMore, setHaveMore] = useState(true);
+  const globalState = useContext(GlobalContext);
+  const PAGE_SIZE = 10;
 
   useEffect(() => {
     setCurrentPage(0);
     setHaveMore(true);
     (async () => {
-      let res = await filter(globalState.cats, globalState.type, PAGE_SIZE, currentPage*PAGE_SIZE)
+      let res = await filter(
+        globalState.cats,
+        globalState.type,
+        PAGE_SIZE,
+        currentPage * PAGE_SIZE
+      );
       setDisplayItems(res);
-      if (res.length == 0) setHaveMore(false); else setHaveMore(true);
+      if (res.length == 0) setHaveMore(false);
+      else setHaveMore(true);
     })();
-  }, [globalState])
+  }, [globalState]);
 
   const fetchMore = () => {
     (async () => {
-      let result = await filter(globalState.cats, globalState.type, PAGE_SIZE, (currentPage+1)*PAGE_SIZE)
-      if (result.length == 0) setHaveMore(false)
+      let result = await filter(
+        globalState.cats,
+        globalState.type,
+        PAGE_SIZE,
+        (currentPage + 1) * PAGE_SIZE
+      );
+      if (result.length == 0) setHaveMore(false);
       setDisplayItems(displayItems.concat(result));
-    })()
-    setCurrentPage(currentPage+1);
-  }
+    })();
+    setCurrentPage(currentPage + 1);
+  };
 
   return (
-    <Stack
-      bg="var(--mantine-color-body)"
-      justify="flex-start"
-    >
+    <Stack bg="var(--mantine-color-body)" justify="flex-start">
       <InfiniteScroll
         dataLength={displayItems.length}
         next={fetchMore}
         hasMore={haveMore}
-        loader={<Center><Loader/></Center>}
+        loader={
+          <Center>
+            <Loader />
+          </Center>
+        }
       >
-      {
-        displayItems.map(item => {
-          return <ItemDisplayCard item={item} key={item.workno}/>
-        })
-      }
+        {displayItems.map((item) => {
+          return <ItemDisplayCard item={item} key={item.workno} />;
+        })}
       </InfiniteScroll>
     </Stack>
   );

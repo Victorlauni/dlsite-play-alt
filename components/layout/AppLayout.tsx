@@ -7,20 +7,19 @@ import FilterSelector from '../FilterSelector/FilterSelector';
 import GlobalContext from '@/stateContext/GlobalContext/GlobalContext';
 import { GlobalState } from '@/@type/GlobalState.types';
 
-export default function AppLayout(prop: {children: any}) {
+export default function AppLayout(prop: { children: any }) {
   const [mobileOpened, { toggle: toggleMobile }] = useDisclosure();
   const [desktopOpened, { toggle: toggleDesktop }] = useDisclosure(true);
-  const [globalState, setGlobalState] = useState<GlobalState>({cats: [], type: ""})
+  const [globalState, setGlobalState] = useState<GlobalState>({ cats: [], type: '' });
   const [isAuth, setIsAuth] = useState(false);
   useEffect(() => {
     // Perform localStorage action
-    setIsAuth(localStorage.getItem('auth') === "true")
-  }, [])
-  
+    setIsAuth(localStorage.getItem('auth') === 'true');
+  }, []);
 
   return (
     <GlobalContext.Provider value={globalState}>
-        <AppShell
+      <AppShell
         header={{ height: 60 }}
         navbar={{
           width: 300,
@@ -37,7 +36,11 @@ export default function AppLayout(prop: {children: any}) {
           </Group>
         </AppShell.Header>
         <AppShell.Navbar p="md">
-          {isAuth ? <FilterSelector setIsAuth={setIsAuth} setFilter={setGlobalState}/> : <LoginModal setIsAuth={setIsAuth}/>}
+          {isAuth ? (
+            <FilterSelector setIsAuth={setIsAuth} setFilter={setGlobalState} />
+          ) : (
+            <LoginModal setIsAuth={setIsAuth} />
+          )}
         </AppShell.Navbar>
         <AppShell.Main>{prop.children}</AppShell.Main>
       </AppShell>

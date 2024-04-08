@@ -1,4 +1,4 @@
 export interface GlobalState {
-    cats: number[],
-    type: string
+  cats: number[];
+  type: string;
 }

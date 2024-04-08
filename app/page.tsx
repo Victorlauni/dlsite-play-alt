@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import AppLayout from '@/components/layout/AppLayout';
 import ItemContainer from '@/components/container/ItemContainer';
 
@@ -7,7 +7,7 @@ export default function HomePage() {
     <AppLayout>
       {/* <Welcome />
       <ColorSchemeToggle /> */}
-      <ItemContainer/>
+      <ItemContainer />
     </AppLayout>
   );
 }
