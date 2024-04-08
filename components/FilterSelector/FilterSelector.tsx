@@ -25,7 +25,9 @@ import { GlobalState } from '@/@type/GlobalState.types';
 export default function FilterSelector(props: {
   setIsAuth: (auth: boolean) => void;
   setFilter: Dispatch<SetStateAction<{ cats: number[]; type: string }>>;
+  setIsUpdating: Dispatch<SetStateAction<number>>
 }) {
+  const setIsUpdating = props.setIsUpdating
   const [cat, setCat] = useState<string[]>([]);
   const [type, setType] = useState<string>('SOU');
   const [appealOpen, { toggle: appealToggle }] = useDisclosure(false);
@@ -34,7 +36,6 @@ export default function FilterSelector(props: {
   const [itemOpen, { toggle: itemToggle }] = useDisclosure(false);
   const [characterOpen, { toggle: characterToggle }] = useDisclosure(false);
   const [appearenceOpen, { toggle: appearenceToggle }] = useDisclosure(false);
-  const [isUpdating, setIsUpdating] = useState(100);
 
   useEffect(() => {
     selectAllCat();
@@ -108,7 +109,7 @@ export default function FilterSelector(props: {
 
   const updateItemsCat = async () => {
     const totalItems = await db.items.count();
-    const asyncThreads = 50;
+    const asyncThreads = 10;
     for (let i = 0; i < totalItems; i += asyncThreads) {
       setIsUpdating(50 + (i / totalItems) * 50);
       let listOfKey: string[] = [];
@@ -124,17 +125,8 @@ export default function FilterSelector(props: {
     }
   };
 
-  const updateProgress = (
-    <Stack w="100%" align="center">
-      <Loader color="blue" />
-      <Progress value={isUpdating} w="100%" />
-      <Text>{Math.round(isUpdating) + '%'}</Text>
-    </Stack>
-  );
-
   return (
     <>
-      <LoadingOverlay visible={isUpdating < 100} loaderProps={{ children: updateProgress }} />
       <ScrollArea>
         <Stack>
           <Text>Work Category</Text>
