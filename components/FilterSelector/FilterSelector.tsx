@@ -125,7 +125,7 @@ export default function FilterSelector(props: {
 
   const updateItemsCat = async () => {
     const totalItems = await db.items.count();
-    const asyncThreads = 100;
+    const asyncThreads = 25;
     for (let i = 0; i < totalItems; i += asyncThreads) {
       setIsUpdating(50 + (i / totalItems) * 50);
       let listOfKey: string[] = [];
