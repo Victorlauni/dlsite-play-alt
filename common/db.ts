@@ -47,14 +47,14 @@ export const filter = async (
         .where('cat')
         .anyOf(...cat)
         .distinct()
-        .offset(offset)
-        .limit(limit)
-        .reverse()
-        .sortBy('sales_date')
+        .toArray()
         .then((items) => db.items.bulkGet(items.map((work) => work.workno)))
         .then((res) =>
           Promise.resolve(
-            res.filter((it) => it != undefined && it.work_type === type) as GeneralItem[]
+            res
+              .sort((a, b) =>  b?.sales_date?.localeCompare(a?.sales_date!) ?? 0)
+              .slice(offset, offset+limit)
+              .filter(it => it != undefined && it.work_type === type) as GeneralItem[]
           )
         );
 };

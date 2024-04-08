@@ -10,41 +10,40 @@ export default function ItemContainer() {
   const [displayItems, setDisplayItems] = useState<GeneralItem[]>([]);
   const [haveMore, setHaveMore] = useState(true);
   const globalState = useContext(GlobalContext);
-  const PAGE_SIZE = 10;
+  const PAGE_SIZE = 20;
 
   useEffect(() => {
     setCurrentPage(0);
+    setDisplayItems([]);
     setHaveMore(true);
     (async () => {
       let res = await filter(
         globalState.cats,
         globalState.type,
         PAGE_SIZE,
-        currentPage * PAGE_SIZE
+        0
       );
       setDisplayItems(res);
-      if (res.length == 0) setHaveMore(false);
-      else setHaveMore(true);
     })();
   }, [globalState]);
 
   const fetchMore = () => {
+    setCurrentPage(currentPage + 1);
     (async () => {
       let result = await filter(
         globalState.cats,
         globalState.type,
         PAGE_SIZE,
-        (currentPage + 1) * PAGE_SIZE
+        (currentPage) * PAGE_SIZE
       );
       if (result.length == 0) setHaveMore(false);
       setDisplayItems(displayItems.concat(result));
     })();
-    setCurrentPage(currentPage + 1);
   };
 
   return (
     <Stack bg="var(--mantine-color-body)" justify="flex-start" gap="md">
-      <InfiniteScroll
+      {displayItems.length > 0 ? <InfiniteScroll
         dataLength={displayItems.length}
         next={fetchMore}
         hasMore={haveMore}
@@ -57,7 +56,7 @@ export default function ItemContainer() {
         {displayItems.map((item) => {
           return <ItemDisplayCard item={item} key={item.workno} />;
         })}
-      </InfiniteScroll>
+      </InfiniteScroll> : <></>}
     </Stack>
   );
 }
