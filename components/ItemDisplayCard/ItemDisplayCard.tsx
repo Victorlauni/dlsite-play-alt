@@ -24,7 +24,9 @@ export default function ItemDisplayCard(props: { item: GeneralItem }) {
       onClick={() => {
         window.open(getWorkUrl(props.item.workno), '_black');
       }}
-      style={{ border: '1px solid #555' }}
+      style={{ cursor: 'pointer' }}
+      mb="10px"
+      bg="rgba(55, 55, 55, 0.3)"
     >
       <AspectRatio ratio={4 / 3} w="20%">
         <Image src={props.item.work_files.main} h="100%" radius={'md'} loading="lazy" />

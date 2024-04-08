@@ -43,7 +43,7 @@ export default function ItemContainer() {
   };
 
   return (
-    <Stack bg="var(--mantine-color-body)" justify="flex-start">
+    <Stack bg="var(--mantine-color-body)" justify="flex-start" gap="md">
       <InfiniteScroll
         dataLength={displayItems.length}
         next={fetchMore}
