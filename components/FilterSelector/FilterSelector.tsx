@@ -15,7 +15,7 @@ import {
   Text,
 } from '@mantine/core';
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { fetchCat, update } from '../LoginModal/LoginModalAction';
+import { fetchCat, fetchCatBulk, update } from '../LoginModal/LoginModalAction';
 import { db } from '@/common/db';
 import { useDisclosure } from '@mantine/hooks';
 import { WORK_CATEGORY } from '@/common/const';
@@ -107,9 +107,25 @@ export default function FilterSelector(props: {
     console.log(`${workno} completed.`);
   };
 
+  const updateItemBulk = async (worknos: string[]) => {
+    let worknoReq = []
+    for (let workno of worknos) {
+      let ex = await db.workCats.get(workno);
+      if (ex == undefined || true) {
+        worknoReq.push(workno)
+      }
+    }
+    let res = await fetchCatBulk(worknoReq)
+    Object.entries(res).forEach(res => {
+      (async () => {
+        await db.workCats.put({ workno: res[0], cat: res[1] })
+      })()
+    })
+  }
+
   const updateItemsCat = async () => {
     const totalItems = await db.items.count();
-    const asyncThreads = 10;
+    const asyncThreads = 100;
     for (let i = 0; i < totalItems; i += asyncThreads) {
       setIsUpdating(50 + (i / totalItems) * 50);
       let listOfKey: string[] = [];
@@ -118,10 +134,11 @@ export default function FilterSelector(props: {
         .offset(i)
         .limit(asyncThreads)
         .primaryKeys((keys) => (listOfKey = keys));
-      for (let key of listOfKey) {
-        asyncList.push(updateItemCat(key));
-      }
-      await Promise.all(asyncList);
+      await updateItemBulk(listOfKey)
+      // for (let key of listOfKey) {
+      //   asyncList.push(updateItemCat(key));
+      // }
+      // await Promise.all(asyncList);
     }
   };
 

@@ -147,3 +147,15 @@ export async function fetchCat(workno: string): Promise<number[]> {
     });
   return Promise.resolve(catList);
 }
+
+export async function fetchCatBulk(worknos: string[]): Promise<Record<string, number[]>> {
+  let promiseList = []
+  let result: Record<string, number[]> = {}
+  for (let workno of worknos) {
+    promiseList.push(fetchCat(workno))
+  }
+  (await Promise.all(promiseList)).map((val, ind) => {
+    result[worknos[ind]] = val
+  })
+  return Promise.resolve(result)
+}
