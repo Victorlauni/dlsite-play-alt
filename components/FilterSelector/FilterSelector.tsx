@@ -97,6 +97,7 @@ export default function FilterSelector(props: {
   };
 
   const updateItemCat = async (workno: string) => {
+    console.log(`${workno} begin...`)
     let ex = await db.workCats.get(workno);
     if (ex == undefined) {
       const cats = await fetchCat(workno);
@@ -117,9 +118,9 @@ export default function FilterSelector(props: {
         .limit(asyncThreads)
         .primaryKeys((keys) => (listOfKey = keys));
       for (let key of listOfKey) {
-        asyncList.push(() => updateItemCat(key));
+        asyncList.push(updateItemCat(key));
       }
-      await Promise.all(asyncList.map((it) => it()));
+      await Promise.all(asyncList);
     }
   };
 

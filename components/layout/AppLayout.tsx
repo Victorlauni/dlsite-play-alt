@@ -32,7 +32,9 @@ export default function AppLayout(prop: { children: any }) {
           <Group h="100%" px="md">
             <Burger opened={mobileOpened} onClick={toggleMobile} hiddenFrom="sm" size="sm" />
             <Burger opened={desktopOpened} onClick={toggleDesktop} visibleFrom="sm" size="sm" />
-            <Text>Fuck</Text>
+            <Text>
+              DLsite Play -ALT-
+            </Text>
           </Group>
         </AppShell.Header>
         <AppShell.Navbar p="md">
