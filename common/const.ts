@@ -1,10 +1,6 @@
-export const getCatUrl = (catNo: number) => {
-  return `https://www.dlsite.com/maniax/fsr/=/genre/${catNo}/from/work.genre`;
-};
+export const getCatUrl = (catNo: number) => `https://www.dlsite.com/maniax/fsr/=/genre/${catNo}/from/work.genre`;
 
-export const getWorkUrl = (workno: string) => {
-  return `https://play.dlsite.com/#/work/${workno}`;
-};
+export const getWorkUrl = (workno: string) => `https://play.dlsite.com/#/work/${workno}`;
 
 export const WORK_CATEGORY: Record<string, Record<string, Record<number, string>>> = {
   R18: {
@@ -164,6 +160,7 @@ export const WORK_CATEGORY: Record<string, Record<string, Record<number, string>
       118: 'レズ/女同士',
       143: '露出',
       123: '和姦',
+      314: 'トランス/暗示ボイス',
     },
     item: {
       299: 'おむつ',

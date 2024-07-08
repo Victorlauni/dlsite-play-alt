@@ -15,9 +15,9 @@ import {
   Text,
 } from '@mantine/core';
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { fetchCat, fetchCatBulk, update } from '../LoginModal/LoginModalAction';
-import { db } from '@/common/db';
 import { useDisclosure } from '@mantine/hooks';
+import { fetchCat, fetchCatBulk, update } from '../../serverAction/serverAction';
+import { db } from '@/common/db';
 import { WORK_CATEGORY } from '@/common/const';
 import GlobalContext from '@/stateContext/GlobalContext/GlobalContext';
 import { GlobalState } from '@/@type/GlobalState.types';
@@ -25,9 +25,9 @@ import { GlobalState } from '@/@type/GlobalState.types';
 export default function FilterSelector(props: {
   setIsAuth: (auth: boolean) => void;
   setFilter: Dispatch<SetStateAction<{ cats: number[]; type: string }>>;
-  setIsUpdating: Dispatch<SetStateAction<number>>
+  setIsUpdating: Dispatch<SetStateAction<number>>;
 }) {
-  const setIsUpdating = props.setIsUpdating
+  const { setIsUpdating } = props;
   const [cat, setCat] = useState<string[]>([]);
   const [type, setType] = useState<string>('SOU');
   const [appealOpen, { toggle: appealToggle }] = useDisclosure(false);
@@ -49,11 +49,10 @@ export default function FilterSelector(props: {
   }, []);
 
   useEffect(() => {
-    props.setFilter({ cats: cat.map((c) => parseInt(c)), type: type });
+    props.setFilter({ cats: cat.map((c) => parseInt(c)), type });
   }, [cat, type]);
 
-  const isAllCatChecked = (): boolean => {
-    return (
+  const isAllCatChecked = (): boolean => (
       cat.length ==
       Object.keys(WORK_CATEGORY.R18.appeal)
         .concat(Object.keys(WORK_CATEGORY.R18.system))
@@ -62,7 +61,6 @@ export default function FilterSelector(props: {
         .concat(Object.keys(WORK_CATEGORY.R18.character))
         .concat(Object.keys(WORK_CATEGORY.R18.appearence)).length
     );
-  };
 
   const deselectAllCat = () => {
     setCat([]);
@@ -83,7 +81,7 @@ export default function FilterSelector(props: {
     try {
       setIsUpdating(0);
       const items = await update();
-      for (let item of items) {
+      for (const item of items) {
         await db.items.put(item).catch((e) => console.error(e));
       }
       setIsUpdating(50);
@@ -98,30 +96,30 @@ export default function FilterSelector(props: {
   };
 
   const updateItemCat = async (workno: string) => {
-    console.log(`${workno} begin...`)
-    let ex = await db.workCats.get(workno);
+    console.log(`${workno} begin...`);
+    const ex = await db.workCats.get(workno);
     if (ex == undefined) {
       const cats = await fetchCat(workno);
-      await db.workCats.put({ workno: workno, cat: cats });
+      await db.workCats.put({ workno, cat: cats });
     }
     console.log(`${workno} completed.`);
   };
 
   const updateItemBulk = async (worknos: string[]) => {
-    let worknoReq = []
-    for (let workno of worknos) {
-      let ex = await db.workCats.get(workno);
-      if (ex == undefined || true) {
-        worknoReq.push(workno)
+    const worknoReq = [];
+    for (const workno of worknos) {
+      const ex = await db.workCats.get(workno);
+      if (ex == undefined) {
+        worknoReq.push(workno);
       }
     }
-    let res = await fetchCatBulk(worknoReq)
-    Object.entries(res).forEach(res => {
+    const res = await fetchCatBulk(worknoReq);
+    Object.entries(res).forEach((res) => {
       (async () => {
-        await db.workCats.put({ workno: res[0], cat: res[1] })
-      })()
-    })
-  }
+        await db.workCats.put({ workno: res[0], cat: res[1] });
+      })();
+    });
+  };
 
   const updateItemsCat = async () => {
     const totalItems = await db.items.count();
@@ -129,16 +127,11 @@ export default function FilterSelector(props: {
     for (let i = 0; i < totalItems; i += asyncThreads) {
       setIsUpdating(50 + (i / totalItems) * 50);
       let listOfKey: string[] = [];
-      let asyncList = [];
       await db.items
         .offset(i)
         .limit(asyncThreads)
         .primaryKeys((keys) => (listOfKey = keys));
-      await updateItemBulk(listOfKey)
-      // for (let key of listOfKey) {
-      //   asyncList.push(updateItemCat(key));
-      // }
-      // await Promise.all(asyncList);
+      await updateItemBulk(listOfKey);
     }
   };
 
@@ -160,7 +153,7 @@ export default function FilterSelector(props: {
             <Button fullWidth onClick={appealToggle} variant="outline">
               Appeal
             </Button>
-            <Space h={'md'} />
+            <Space h="md" />
             <Collapse in={appealOpen}>
               <Group pb="md">
                 {Object.entries(WORK_CATEGORY.R18.appeal).map((val) => (
@@ -172,7 +165,7 @@ export default function FilterSelector(props: {
             <Button fullWidth onClick={systemToggle} variant="outline">
               System
             </Button>
-            <Space h={'md'} />
+            <Space h="md" />
             <Collapse in={systemOpen}>
               <Group pb="md">
                 {Object.entries(WORK_CATEGORY.R18.system).map((val) => (
@@ -184,7 +177,7 @@ export default function FilterSelector(props: {
             <Button fullWidth onClick={playToggle} variant="outline">
               Play
             </Button>
-            <Space h={'md'} />
+            <Space h="md" />
             <Collapse in={playOpen}>
               <Group pb="md">
                 {Object.entries(WORK_CATEGORY.R18.play).map((val) => (
@@ -196,7 +189,7 @@ export default function FilterSelector(props: {
             <Button fullWidth onClick={itemToggle} variant="outline">
               Item
             </Button>
-            <Space h={'md'} />
+            <Space h="md" />
             <Collapse in={itemOpen}>
               <Group pb="md">
                 {Object.entries(WORK_CATEGORY.R18.item).map((val) => (
@@ -208,7 +201,7 @@ export default function FilterSelector(props: {
             <Button fullWidth onClick={characterToggle} variant="outline">
               Character
             </Button>
-            <Space h={'md'} />
+            <Space h="md" />
             <Collapse in={characterOpen}>
               <Group pb="md">
                 {Object.entries(WORK_CATEGORY.R18.character).map((val) => (
@@ -220,7 +213,7 @@ export default function FilterSelector(props: {
             <Button fullWidth onClick={appearenceToggle} variant="outline">
               Appearence
             </Button>
-            <Space h={'md'} />
+            <Space h="md" />
             <Collapse in={appearenceOpen}>
               <Group pb="md">
                 {Object.entries(WORK_CATEGORY.R18.appearence).map((val) => (

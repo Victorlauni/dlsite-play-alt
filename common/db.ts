@@ -1,6 +1,6 @@
+import Dexie, { Table } from 'dexie';
 import { GeneralItem } from '@/@type/DlsiteItem.types';
 import { WorkCategory } from '@/@type/WorkCategory';
-import Dexie, { Table } from 'dexie';
 import { WORK_CATEGORY } from './const';
 
 export class IndexedDBDexie extends Dexie {
@@ -16,8 +16,7 @@ export class IndexedDBDexie extends Dexie {
   }
 }
 
-const isAllCatChecked = (cats: number[]): boolean => {
-  return (
+const isAllCatChecked = (cats: number[]): boolean => (
     cats.length ==
     Object.keys(WORK_CATEGORY.R18.appeal)
       .concat(Object.keys(WORK_CATEGORY.R18.system))
@@ -26,24 +25,20 @@ const isAllCatChecked = (cats: number[]): boolean => {
       .concat(Object.keys(WORK_CATEGORY.R18.character))
       .concat(Object.keys(WORK_CATEGORY.R18.appearence)).length
   );
-};
 
-export const find = async (type: string, limit: number, offset: number): Promise<GeneralItem[]> => {
-  return (await db.items.where('work_type').equals(type).reverse().sortBy('sales_date')).slice(
+export const find = async (type: string, limit: number, offset: number): Promise<GeneralItem[]> => (await db.items.where('work_type').equals(type).reverse().sortBy('sales_date')).slice(
     offset,
     offset + limit
   );
-};
 
 export const filter = async (
   cat: number[],
   type: string,
   limit: number,
   offset: number
-): Promise<GeneralItem[]> => {
-  return isAllCatChecked(cat)
-    ? await find(type, limit, offset)
-    : await db.workCats
+): Promise<GeneralItem[]> => isAllCatChecked(cat)
+    ? find(type, limit, offset)
+    : db.workCats
         .where('cat')
         .anyOf(...cat)
         .distinct()
@@ -52,11 +47,10 @@ export const filter = async (
         .then((res) =>
           Promise.resolve(
             res
-              .sort((a, b) =>  b?.sales_date?.localeCompare(a?.sales_date!) ?? 0)
-              .slice(offset, offset+limit)
-              .filter(it => it != undefined && it.work_type === type) as GeneralItem[]
+              .sort((a, b) => b?.sales_date?.localeCompare(a?.sales_date!) ?? 0)
+              .slice(offset, offset + limit)
+              .filter((it) => it != undefined && it.work_type === type) as GeneralItem[]
           )
         );
-};
 
 export const db = new IndexedDBDexie();

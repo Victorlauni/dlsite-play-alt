@@ -1,8 +1,8 @@
-import { GeneralItem } from '@/@type/DlsiteItem.types';
-import { WORK_CATEGORY, WORK_CATEGORY_NAME, getWorkUrl } from '@/common/const';
-import { db } from '@/common/db';
 import { AspectRatio, Badge, Group, Image, Stack, Text } from '@mantine/core';
 import React, { useEffect, useState } from 'react';
+import { GeneralItem } from '@/@type/DlsiteItem.types';
+import { WORK_CATEGORY_NAME, getWorkUrl } from '@/common/const';
+import { db } from '@/common/db';
 
 export default function ItemDisplayCard(props: { item: GeneralItem }) {
   const [cats, setCats] = useState<string[]>([]);
@@ -28,8 +28,8 @@ export default function ItemDisplayCard(props: { item: GeneralItem }) {
       mb="10px"
       bg="rgba(55, 55, 55, 0.3)"
     >
-      <AspectRatio ratio={4 / 3} w="20%">
-        <Image src={props.item.work_files.main} h="100%" radius={'md'} loading="lazy" />
+      <AspectRatio ratio={4 / 3} w="min(20%, 250px)">
+        <Image src={props.item.work_files.main} h="100%" radius="md" loading="lazy" />
       </AspectRatio>
       <Stack w="80%">
         <Text fw={700}>{props.item.name.ja_JP}</Text>

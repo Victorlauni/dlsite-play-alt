@@ -1,4 +1,5 @@
 'use client';
+
 import {
   Button,
   LoadingOverlay,
@@ -8,10 +9,10 @@ import {
   Text,
   TextInput,
 } from '@mantine/core';
-import { login, update } from './LoginModalAction';
 import { useState } from 'react';
 import { notifications } from '@mantine/notifications';
 import { useDisclosure } from '@mantine/hooks';
+import { login, update } from '../../serverAction/serverAction';
 
 export default function LoginModal(props: { setIsAuth: (isAuth: boolean) => void }) {
   const [opened, { open, close }] = useDisclosure(true);
@@ -33,13 +34,13 @@ export default function LoginModal(props: { setIsAuth: (isAuth: boolean) => void
       return;
     }
 
-    try {
-      await update();
-    } catch (e) {
-      setMessage('Error fetching dlsite play...');
-      setIsLoading(false);
-      return;
-    }
+    // try {
+    //   await update();
+    // } catch (e) {
+    //   setMessage('Error fetching dlsite play...');
+    //   setIsLoading(false);
+    //   return;
+    // }
 
     props.setIsAuth(true);
     localStorage.setItem('auth', 'true');
@@ -70,7 +71,7 @@ export default function LoginModal(props: { setIsAuth: (isAuth: boolean) => void
           }
           value={accountInfo.password}
         />
-        <Button disabled={isLoading} onClick={async () => await tryLogin()}>
+        <Button disabled={isLoading} onClick={async () => tryLogin()}>
           Login
         </Button>
         <Text size="sm" c="red">

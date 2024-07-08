@@ -2,10 +2,12 @@
 
 import { cookies } from 'next/headers';
 import { JSDOM } from 'jsdom';
+import { RedisClient } from '@/common/redis';
 
 const constructHeaderWithCookies = () => {
-  let cookieArr = [];
-  for (let c of cookies().getAll()) {
+  const cookieArr = [];
+  // eslint-disable-next-line no-restricted-syntax
+  for (const c of cookies().getAll()) {
     cookieArr.push(`${c.name}=${c.value}`);
   }
   const header = new Headers();
@@ -15,7 +17,7 @@ const constructHeaderWithCookies = () => {
 
 const saveCookies = (res: Response) => {
   const resCookies = res.headers.getSetCookie();
-  for (let cookie of resCookies) {
+  for (const cookie of resCookies) {
     const cookieKV = cookie.split(';')[0];
     const [key, value] = cookieKV.split('=');
     cookies().set(key, value);
@@ -24,7 +26,7 @@ const saveCookies = (res: Response) => {
 
 const forwardCookiesAndRedirect = async (res: Response): Promise<Response> => {
   const url = res.headers.get('location') ?? '';
-  console.log('Redirected to ' + url);
+  console.log(`Redirected to ${url}`);
   saveCookies(res);
   const header = constructHeaderWithCookies();
   const newRes = await fetch(url, {
@@ -45,7 +47,7 @@ export async function login(accountInfo: { email: string; password: string }): P
     .then((res) => {
       const resCookies = res.headers.getSetCookie();
       let XSRF = '';
-      for (let cookie of resCookies) {
+      for (const cookie of resCookies) {
         const cookieKV = cookie.split(';')[0];
         const [key, value] = cookieKV.split('=');
         if (key === 'XSRF-TOKEN') XSRF = value;
@@ -69,8 +71,11 @@ export async function login(accountInfo: { email: string; password: string }): P
     .then((res) => forwardCookiesAndRedirect(res))
     .then((res) => res.text())
     .then((res) => {
-      if (!res.includes('ログイン中です')) throw new Error('Login failed.');
-      else return;
+      if (!res.includes('ログイン中です')) {
+        throw new Error('Login failed.');
+      } else {
+
+      }
     });
 
   return Promise.resolve(cookies().getAll());
@@ -101,12 +106,12 @@ export async function update(): Promise<any> {
         .then((res) => res.json())
         .then((json) => json.user);
       if (isNaN(itemCount)) throw new Error('Cred expired.');
-      console.log('Total Items: ' + itemCount);
-      let dataFetch = [];
+      console.log(`Total Items: ${itemCount}`);
+      const dataFetch = [];
       for (let i = 0, page = 1; i < itemCount; i += 50, page++) {
         console.log(`Fetching...   (${i}/${itemCount})`);
         dataFetch.push(
-          fetch('https://play.dlsite.com/api/purchases?last=0&page=' + page, {
+          fetch(`https://play.dlsite.com/api/purchases?last=0&page=${page}`, {
             credentials: 'include',
             cache: 'no-store',
             headers: constructHeaderWithCookies(),
@@ -116,7 +121,7 @@ export async function update(): Promise<any> {
       return Promise.all(dataFetch);
     })
     .then(async (res) => {
-      for (let val of res) {
+      for (const val of res) {
         data = data.concat((await val.json()).works);
       }
     })
@@ -128,8 +133,8 @@ export async function update(): Promise<any> {
 }
 
 export async function fetchCat(workno: string): Promise<number[]> {
-  let catList: number[] = [];
-  let url = `https://www.dlsite.com/maniax/work/=/product_id/${workno}.html`;
+  const catList: number[] = [];
+  const url = `https://www.dlsite.com/maniax/work/=/product_id/${workno}.html`;
   await fetch(url)
     .then((res) => res.text())
     .then((res) => {
@@ -142,20 +147,33 @@ export async function fetchCat(workno: string): Promise<number[]> {
         //console.log(`${catName} ${href}`)
         const hrefRX = /.+genre\/([0-9]*)\/from.+/g;
         const catNo = hrefRX.exec(href);
-        if (catNo != null && catNo.length > 1) catList.push(parseInt(catNo[1]));
+        if (catNo != null && catNo.length > 1) catList.push(parseInt(catNo[1], 10));
       }
     });
   return Promise.resolve(catList);
 }
 
-export async function fetchCatBulk(worknos: string[]): Promise<Record<string, number[]>> {
-  let promiseList = []
-  let result: Record<string, number[]> = {}
-  for (let workno of worknos) {
-    promiseList.push(fetchCat(workno))
+export async function getCatFromKvOrFetch(workno: string): Promise<number[]> {
+  const redis = await RedisClient.getRedisClient();
+  const catNos = await redis.sMembers(`dlsite:workcat:${workno}`);
+  if (catNos == null || catNos.length === 0) {
+    const catNosInt = await fetchCat(workno);
+    if (catNosInt.length > 0) await redis.sAdd(`dlsite:workcat:${workno}`, catNosInt.map((num: number) => num.toString()));
+    else await redis.SADD(`dlsite:workcat:${workno}`, '-1');
+    return catNosInt;
   }
-  (await Promise.all(promiseList)).map((val, ind) => {
-    result[worknos[ind]] = val
-  })
-  return Promise.resolve(result)
+  return Promise.resolve(catNos.filter((v) => v !== '-1').map((v) => parseInt(v, 10)));
+}
+
+export async function fetchCatBulk(worknos: string[]): Promise<Record<string, number[]>> {
+  const promiseList = [];
+  const result: Record<string, number[]> = {};
+  // eslint-disable-next-line no-restricted-syntax
+  for (const workno of worknos) {
+    promiseList.push(getCatFromKvOrFetch(workno));
+  }
+  (await Promise.all(promiseList)).forEach((val, ind) => {
+    result[worknos[ind]] = val;
+  });
+  return Promise.resolve(result);
 }
