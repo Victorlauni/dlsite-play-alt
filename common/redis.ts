@@ -5,7 +5,7 @@ export class RedisClient {
   public static async getRedisClient() {
     if (this.client === undefined) {
       this.client = await createClient({
-        url: 'redis://@localhost:16379',
+        url: process.env.REDIS,
       })
         .on('error', (err) => console.log('Redis Client Error', err))
         .connect();
