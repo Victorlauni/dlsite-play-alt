@@ -31,12 +31,17 @@ export const find = async (type: string, limit: number, offset: number): Promise
     offset + limit
   );
 
+export const getItemCount = async (): Promise<number> => {
+  return await db.items.count()
+}
+
 export const filter = async (
   cat: number[],
   type: string,
+  keyword: string,
   limit: number,
   offset: number
-): Promise<GeneralItem[]> => isAllCatChecked(cat)
+): Promise<GeneralItem[]> => (isAllCatChecked(cat) && !keyword
     ? find(type, limit, offset)
     : db.workCats
         .where('cat')
@@ -48,9 +53,9 @@ export const filter = async (
           Promise.resolve(
             res
               .sort((a, b) => b?.sales_date?.localeCompare(a?.sales_date!) ?? 0)
-              .slice(offset, offset + limit)
-              .filter((it) => it != undefined && it.work_type === type) as GeneralItem[]
+              .filter((it) => it != undefined && it.work_type === type)
+              .filter((it) => it?.name?.ja_JP?.includes(keyword) ?? true)
+              .slice(offset, offset + limit) as GeneralItem[]
           )
-        );
-
+        ))
 export const db = new IndexedDBDexie();

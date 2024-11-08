@@ -6,6 +6,7 @@ import {
   ChipGroup,
   Collapse,
   Group,
+  Input,
   Loader,
   LoadingOverlay,
   Progress,
@@ -13,6 +14,7 @@ import {
   Space,
   Stack,
   Text,
+  TextInput,
 } from '@mantine/core';
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { useDisclosure } from '@mantine/hooks';
@@ -24,12 +26,13 @@ import { GlobalState } from '@/@type/GlobalState.types';
 
 export default function FilterSelector(props: {
   setIsAuth: (auth: boolean) => void;
-  setFilter: Dispatch<SetStateAction<{ cats: number[]; type: string }>>;
+  setFilter: Dispatch<SetStateAction<{ cats: number[]; type: string, keyword: string }>>;
   setIsUpdating: Dispatch<SetStateAction<number>>;
 }) {
   const { setIsUpdating } = props;
   const [cat, setCat] = useState<string[]>([]);
   const [type, setType] = useState<string>('SOU');
+  const [keyword, setKeyword] = useState<string>('');
   const [appealOpen, { toggle: appealToggle }] = useDisclosure(false);
   const [systemOpen, { toggle: systemToggle }] = useDisclosure(false);
   const [playOpen, { toggle: playToggle }] = useDisclosure(false);
@@ -49,8 +52,8 @@ export default function FilterSelector(props: {
   }, []);
 
   useEffect(() => {
-    props.setFilter({ cats: cat.map((c) => parseInt(c)), type });
-  }, [cat, type]);
+    props.setFilter({ cats: cat.map((c) => parseInt(c)), type: type, keyword: keyword });
+  }, [cat, type, keyword]);
 
   const isAllCatChecked = (): boolean => (
       cat.length ==
@@ -226,7 +229,14 @@ export default function FilterSelector(props: {
           <ChipGroup value={type} onChange={setType} multiple={false}>
             <Chip value="SOU">ASMR</Chip>
           </ChipGroup>
+
+          <TextInput 
+            placeholder='Search by keywords' 
+            onChange={e => setKeyword(e.currentTarget.value)}
+            value={keyword}
+            />
           <Button onClick={updateItemsList}>Update</Button>
+
         </Stack>
       </ScrollArea>
     </>

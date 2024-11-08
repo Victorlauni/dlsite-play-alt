@@ -1,8 +1,8 @@
-import { Center, Loader, Stack } from '@mantine/core';
+import { Center, Divider, Loader, Stack } from '@mantine/core';
 import { useContext, useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import ItemDisplayCard from '../ItemDisplayCard/ItemDisplayCard';
-import { filter } from '@/common/db';
+import { filter, getItemCount } from '@/common/db';
 import { GeneralItem } from '@/@type/DlsiteItem.types';
 import GlobalContext from '@/stateContext/GlobalContext/GlobalContext';
 
@@ -18,28 +18,28 @@ export default function ItemContainer() {
     setDisplayItems([]);
     setHaveMore(true);
     (async () => {
-      const res = await filter(globalState.cats, globalState.type, PAGE_SIZE, 0);
+      const res = await filter(globalState.cats, globalState.type, globalState.keyword, PAGE_SIZE, 0);
       setDisplayItems(res);
     })();
   }, [globalState]);
 
-  const fetchMore = () => {
-    (async () => {
+
+  const fetchMore = async () => {
       const result = await filter(
         globalState.cats,
         globalState.type,
+        globalState.keyword,
         PAGE_SIZE,
         (currentPage + 1) * PAGE_SIZE
       );
-      if (result.length == 0) setHaveMore(false);
+      if ((currentPage+1)*PAGE_SIZE >= await getItemCount()) setHaveMore(false);
       setDisplayItems(displayItems.concat(result));
-    })();
-    setCurrentPage(currentPage + 1);
+      setCurrentPage(currentPage + 1);
   };
 
   return (
     <Stack bg="var(--mantine-color-body)" justify="flex-start" gap="md">
-      {displayItems.length > 0 ? (
+      {displayItems.length >= 0 ? (
         <InfiniteScroll
           dataLength={displayItems.length}
           next={fetchMore}
@@ -50,7 +50,11 @@ export default function ItemContainer() {
             </Center>
           }
         >
-          {displayItems.map((item) => <ItemDisplayCard item={item} key={item.workno} />)}
+          {displayItems.map((item) => 
+          <>
+            <ItemDisplayCard item={item} key={item.workno} />
+            <Divider my="md"/>
+          </>)}
         </InfiniteScroll>
       ) : (
         <></>

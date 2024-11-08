@@ -9,4 +9,4 @@ services:
   webui:
     image: "nextjs-docker"
     ports:
-      - '3000:3000'
+      - '58080:3000'

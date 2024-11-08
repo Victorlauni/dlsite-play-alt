@@ -1,4 +1,4 @@
-import { AspectRatio, Badge, Group, Image, Stack, Text } from '@mantine/core';
+import { AspectRatio, Badge, Grid, Group, Image, Stack, Text } from '@mantine/core';
 import React, { useEffect, useState } from 'react';
 import { GeneralItem } from '@/@type/DlsiteItem.types';
 import { WORK_CATEGORY_NAME, getWorkUrl } from '@/common/const';
@@ -19,19 +19,20 @@ export default function ItemDisplayCard(props: { item: GeneralItem }) {
     })();
   }, []);
   return (
-    <Group
-      wrap="nowrap"
+    <Grid
       onClick={() => {
         window.open(getWorkUrl(props.item.workno), '_black');
       }}
       style={{ cursor: 'pointer' }}
       mb="10px"
-      bg="rgba(55, 55, 55, 0.3)"
     >
-      <AspectRatio ratio={4 / 3} w="min(20%, 250px)">
-        <Image src={props.item.work_files.main} h="100%" radius="md" loading="lazy" />
-      </AspectRatio>
-      <Stack w="80%">
+      <Grid.Col span={4}>
+        <AspectRatio ratio={4/3}>
+          <Image src={props.item.work_files.main} radius="md" loading="lazy" w="100%" h="100%" fit='contain'/>
+        </AspectRatio>
+      </Grid.Col>
+      <Grid.Col span={8}>
+        <Stack>
         <Text fw={700}>{props.item.name.ja_JP}</Text>
         <Text c="dimmed">{props.item.maker.name.ja_JP}</Text>
         <Group>
@@ -40,6 +41,8 @@ export default function ItemDisplayCard(props: { item: GeneralItem }) {
           ))}
         </Group>
       </Stack>
-    </Group>
+      </Grid.Col>
+      
+    </Grid>
   );
 }

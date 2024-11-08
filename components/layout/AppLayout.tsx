@@ -20,7 +20,7 @@ import { GlobalState } from '@/@type/GlobalState.types';
 export default function AppLayout(prop: { children: any }) {
   const [mobileOpened, { toggle: toggleMobile }] = useDisclosure();
   const [desktopOpened, { toggle: toggleDesktop }] = useDisclosure(true);
-  const [globalState, setGlobalState] = useState<GlobalState>({ cats: [], type: '' });
+  const [globalState, setGlobalState] = useState<GlobalState>({ cats: [], type: '', keyword: '' });
   const [isAuth, setIsAuth] = useState(false);
   const [isUpdating, setIsUpdating] = useState(100);
 
